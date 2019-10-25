@@ -104,11 +104,7 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 					headercapture = string.sub( headercapture , 1 , #headercapture - #lastline) .. "; "
 				end
 			end
-
-			if ("--" .. boundary .. "--") == lastline then
-				print("end")
-			end
-			--p( lastline )
+			
 			lastline= ""
 			counter = 0
 		else
