@@ -89,7 +89,7 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 			lastline= ""
 			counter = 0
 		else
-			if not header1state then
+			if not header1state and not startbody then
 				counter = counter + 1
 				if counter == 3 then
 					startbody = i
