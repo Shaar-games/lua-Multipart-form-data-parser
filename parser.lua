@@ -43,25 +43,6 @@ end
 local exports = {}
 
 exports.Parse = function(multipartBodyBuffer,boundary)
-	local process = function(part)
-
-		local function obj( str )
-			local k = split(str, "=");
-			local a = trim( k[1] );
-			local b = JSON.parse( trim( k[2] ) );
-			local o = {};
-			o[a] = b;
-			return o;
-		end
-
-		local header = split( part.header , ';');
-		local file = obj( header[1] );
-		--local contentType = trim( split( part.info , ':')[2] );
-		file["type"] = contentType;
-		file["data"] = part.part;
-		return file;
-
-	end
 
 	local prev = nil;
 	local lastline='';
