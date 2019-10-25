@@ -104,7 +104,7 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 					headercapture = string.sub( headercapture , 1 , #headercapture - #lastline) .. "; "
 				end
 			end
-			
+
 			lastline= ""
 			counter = 0
 		else
@@ -121,3 +121,6 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 	allParts.headers = headercapture:gsub('%c', '')
 	return allParts;
 end
+
+
+return exports
