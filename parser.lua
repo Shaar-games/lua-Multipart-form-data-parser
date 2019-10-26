@@ -4,7 +4,7 @@ local find = string.find
 local sub = string.sub
 local match = string.match
 local insert = table.insert
-
+local concat = table.concat
 local JSON = require("json")
 
 local function split(str, pat)
@@ -42,7 +42,7 @@ end
 
 local exports = {}
 
-exports.Parse = function(multipartBodyBuffer,boundary)
+exports.Parse = function(multipartBodyBuffer,boundary,headercount)
 
 	local prev = nil;
 	local lastline='';
@@ -53,8 +53,8 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 	local counter = 0;
 	local startbody = nil;
 	local endbody = 0;
-	local headercapture = "";
-	local header1state = false
+	local headercapture = {};
+	local header1state = 0;
 
 	for i=1,#multipartBodyBuffer do
 
@@ -62,46 +62,35 @@ exports.Parse = function(multipartBodyBuffer,boundary)
 		local prevByte = sub( multipartBodyBuffer ,i-1,i-1);
 		local newLineDetected = ((oneByte == "\n") and (prevByte == "\r"));
 		local newLineChar = ((oneByte == "\n") or (oneByte == "\r"));
-
-		if header1state then
-			headercapture = headercapture .. prevByte
-		end
 		
 		if not newLineChar then
 			lastline = lastline .. oneByte;
 		elseif lastline ~= "" then
-			
-
-			if not startbody and not header1state then
-				if header2state then
-					headercapture = headercapture .. lastline .. "; "
-				end
-				header2state = true
-			end
 
 			if ("--" .. boundary) == lastline then
-				header1state = not header1state
-				if header1state == false then
-					headercapture = string.sub( headercapture , 1 , #headercapture - #lastline) .. "; "
-				end
+				header1state = header1state + 1
+				--headercapture = string.sub( headercapture , 1 , #headercapture - #lastline) .. "; "
+				headercapture[ #headercapture + 1 ] = ""
+			else
+				headercapture[ #headercapture ] = headercapture[ #headercapture ] .. lastline .. " ; "
 			end
 
 			lastline= ""
 			counter = 0
 		else
-			if not header1state and not startbody then
+			if true then
 				counter = counter + 1
 				if counter == 3 then
 					startbody = i
+					--break
 				end
 			end
 		end
 	end
 
 	allParts.DATA = sub( multipartBodyBuffer , startbody + 1 , #multipartBodyBuffer - (#boundary + 8) )
-	allParts.headers = headercapture:gsub('%c', '')
+	allParts.headers = sub( concat( headercapture ) , 1 , #headercapture - (#boundary + 8 + #allParts.DATA) )
 	return allParts;
 end
-
 
 return exports
